@@ -1,4 +1,21 @@
-.App {
-  font-family: sans-serif;
-  text-align: center;
+@import url('https://fonts.googleapis.com/css2?family=Roboto&family=Roboto+Condensed&display=swap');
+
+:root {
+  --color-bg: #333;
+  --color-fg: #AAA;
+  --font: 'Roboto', sans-serif;
+  --font-condensed: 'Roboto Condensed', sans-serif;
+}
+
+html { box-sizing: border-box; }
+*, *:before, *:after { box-sizing: inherit; }
+
+html {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font);
+}
+
+body {
+  margin: 0;
 }
