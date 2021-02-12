@@ -1,10 +1,8 @@
 import styled from 'styled-components'
-import Draggable, {DraggableCore} from 'react-draggable'
 import {ScheduledPlant} from '../model/ScheduledPlant'
 import {rgba} from '../utils/utils'
 import {useCallback, useEffect, useState} from 'react'
 
-const {body} = document
 
 const defaultArea = {x:0,y:0,w:1,h:1}
 
@@ -36,9 +34,21 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
   const [position, setPosition] = useState({x: x/zoom, y: y/zoom})
   const [move, setMove] = useState({x:0, y:0})
 
+
+  const [lastpos, setLastpos] = useState({x:0, y:0})
+  const [pos, setPos] = useState({x:0, y:0})
+
   const [dragging, setDragging] = useState(false)
 
-  const startDragging = useCallback(setDragging.bind(null, true), [])
+  const getPos = useCallback(e=>{
+    const {clientX:x, clientY:y} = e?.touches?.[0]||e
+    return {x,y}
+  }, [])
+
+  const startDragging = useCallback(e=>{
+    setLastpos(getPos(e))
+    setDragging(true)
+  }, [])
   const stopDragging = useCallback(setDragging.bind(null, false), [])
 
   const [style, setStyle] = useState({
@@ -49,16 +59,22 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
     boxShadow: `0 0 0 11px ${rgba(color, 0.3)} inset`
   })
 
-  const windowMove = useCallback(e=>{
-    const {movementX, movementY} = e
-    setMove({x:movementX, y:movementY})
-  },[])
+  const windowMove = useCallback(e=>setPos(getPos(e)),[])
 
   useEffect(()=>{
-    const {x:oldx, y:oldy} = position
-    const {x:movex, y:movey} = move
-    const x = oldx + movex
-    const y = oldy + movey
+    const {x:ox,y:oy} = lastpos
+    const {x,y} = pos
+    const dx = x - ox
+    const dy = y - oy
+    setMove({x:dx, y:dy})
+    setLastpos({x,y})
+  },[pos])
+
+  useEffect(()=>{
+    const {x:ox, y:oy} = position
+    const {x:mx, y:my} = move
+    const x = ox + mx
+    const y = oy + my
     setPosition({x,y})
     setStyle({...style, ...{
       left: x + 'px',
@@ -80,10 +96,10 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
   useEffect(()=>{
     if (dragging) {
       window.addEventListener('mousemove', windowMove)
-      window.addEventListener('touchmove', windowMove)
+      document.addEventListener('touchmove', windowMove)
     } else {
       window.removeEventListener('mousemove', windowMove)
-      window.removeEventListener('touchmove', windowMove)
+      document.removeEventListener('touchmove', windowMove)
     }
   }, [dragging])
 
