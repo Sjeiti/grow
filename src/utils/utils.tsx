@@ -5,3 +5,10 @@ export function datePart(date: Date): number {
 export function partToPercentage(part:number):string {
   return `${100*part}%`
 }
+
+export function rgba(color:string, alpha:number):string {
+  const hexes = color.substr(1)
+  const isThree = hexes.length===3
+  const rgb = isThree?(hexes.match(/./g)||[]).map(s=>s+s):(hexes.match(/.{2}/g)||[])
+  return `rgba(${rgb.map(s=>parseInt(s,16)).join(',')},${alpha})`
+}

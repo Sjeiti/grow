@@ -5,12 +5,14 @@ import {ScheduledPlant} from '../model/ScheduledPlant'
 
 const StyledCalendar = styled.div`
   margin-bottom: 3rem;
-  box-shadow: 0 0 32px;
+  box-shadow: 0 0 0 1px gray;
   header {
    display: flex;
+   box-shadow: 0 -1px 0 gray inset;
    div {
     flex: 0 0 ${1/12*100}%;
     text-align: center;
+    line-height: 2rem;
     &:not(las-child) {
       box-shadow: -1px 0 0 var(--color-fg) inset;
     }
@@ -18,12 +20,15 @@ const StyledCalendar = styled.div`
   }
   div {
     position: relative;
+    min-height: 2rem;
     div {
       color: black;
-      position: absolute;
+      position: relative;
       height: 2rem;
+      padding-left: 0.5rem;
       background-color: orange;
       font-family: var(--font-condensed);
+      line-height: 2rem;
     }
   }
 `
@@ -33,10 +38,10 @@ export function Calendar(attr:{schedule:ScheduledPlant[]}) {
 
   return <StyledCalendar>
     <header>
-      {months.map(month=><div>{month}</div>)}
+      {months.map(month=><div key={month}>{month}</div>)}
     </header>
     <div>
-      {schedule.map(plan=>{
+      {schedule.map((plan,key)=>{
         const {from, to} = plan.dateRange
         const fromPart = datePart(from)
         const toPart = datePart(to)
@@ -46,7 +51,7 @@ export function Calendar(attr:{schedule:ScheduledPlant[]}) {
           width: partToPercentage(widthPart),
           backgroundColor: plan.color
         }
-        return <div style={style}>{plan.plant.name}</div>
+        return <div style={style} key={key}>{plan.plant.name}</div>
       })}
     </div>
   </StyledCalendar>

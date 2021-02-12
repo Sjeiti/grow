@@ -4,7 +4,8 @@ import {DateRange} from './DateRange'
 
 export interface ScheduledPlant {
   plant: Plant
-  area: Area
+  bed?: Area
+  area?: Area
   dateRange: DateRange
   color: string
 }
