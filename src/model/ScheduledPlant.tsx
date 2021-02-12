@@ -7,5 +7,8 @@ export interface ScheduledPlant {
   bed?: Area
   area?: Area
   dateRange: DateRange
+  presprout: DateRange
+  sow: DateRange
+  harvest: DateRange
   color: string
 }
