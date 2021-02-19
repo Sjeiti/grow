@@ -9,8 +9,8 @@ import {Area} from './model/Area'
 const bed:Area = {
   x: 0,
   y: 0,
-  w: 220,
-  h: 220
+  w: 60,
+  h: 80
 }
 const differentBed:Area = {
   x: 300,

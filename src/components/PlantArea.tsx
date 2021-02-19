@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import {ScheduledPlant} from '../model/ScheduledPlant'
 import {px, rgba, square} from '../utils/utils'
-import React, {useState, useMemo} from 'react'
+import React, {useState, useMemo, useEffect} from 'react'
 import {Draggable} from './Draggable'
 
 
@@ -28,22 +28,25 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
   const {plant: {name, size = 5}, area = defaultArea, color} = attr.plan
   // const {x, y, w, h} = area
 
-  const {x, y} = area
+  const [x, setX] = useState(area.x)
+  const [y, setY] = useState(area.y)
   const [w, setW] = useState(area.w)
   const [h, setH] = useState(area.h)
 
-  const [style, setStyle] = useState({
-    // left: relativeSize(x),
-    // top: relativeSize(y),
-    width: px(w),
-    height: px(h),
-    boxShadow: `0 0 0 11px ${rgba(color, 0.6)} inset`
-  })
+  const [style, setStyle] = useState({})
 
   const plantSize = useMemo(()=>square(px(size)), [])
 
   const handleSize = useMemo(()=>32, [])
   const handleProps = useMemo(()=>({color,size:handleSize}), [])
+
+  useEffect(()=>{
+    setStyle({
+      width: px(w),
+      height: px(h),
+      boxShadow: `0 0 0 11px ${rgba(color, 0.6)} inset`
+    })
+  },[w,h])
 
   return <Draggable {...{x,y,w,h}}>
     <StyledPlantArea
@@ -52,18 +55,25 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
       plantSize = {plantSize}
       color = {color}
     />
-    <Draggable {...{x:0,y:0}}><StyledHandle {...handleProps} /></Draggable>
+    <Draggable {...{
+      x:0
+      ,y:0
+      ,callback: (x,y)=>{
+        setW(x+handleSize)
+        setH(y+handleSize)
+      }
+    }}><StyledHandle {...handleProps} /></Draggable>
     <Draggable {...{
       x:(w-handleSize)/2
       ,y:h-handleSize
       ,lockX: true
-      ,callback: (x,y)=>{setH(y);setStyle({...style,height:px(y+handleSize)})}
+      ,callback: (x,y)=>setH(y+handleSize)
     }}><StyledHandle {...handleProps} /></Draggable>
     <Draggable {...{
       x:w-handleSize
       ,y:(h-handleSize)/2
       ,lockY: true
-      ,callback: x=>{setW(x);setStyle({...style,width:px(x+handleSize)})}
+      ,callback: (x,y)=>setW(x+handleSize)
     }}><StyledHandle {...handleProps} /></Draggable>
   </Draggable>
 }
