@@ -12,3 +12,12 @@ export function rgba(color:string, alpha:number):string {
   const rgb = isThree?(hexes.match(/./g)||[]).map(s=>s+s):(hexes.match(/.{2}/g)||[])
   return `rgba(${rgb.map(s=>parseInt(s,16)).join(',')},${alpha})`
 }
+
+
+export function px(n:number):string {
+	return `${n}px`
+}
+
+export function square(s:string):string {
+	return `${s} ${s}`
+}

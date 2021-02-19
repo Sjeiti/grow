@@ -1,9 +1,19 @@
 import React, {useCallback, useEffect, useState, CSSProperties} from 'react'
+import {px} from '../utils/utils'
 
-export function Draggable(props:{x:number,y:number,w?:number,h?:number,children?:any}) {
-  const {x, y, w, h} = props
+export function Draggable(props:{
+  x:number
+  ,y:number
+  ,w?:number
+  ,h?:number
+  ,lockX?:boolean
+  ,lockY?:boolean
+  ,callback?:(x:number,y:number)=>void
+  ,children?:any
+}) {
+  const {x, y, w, h, lockX=false, lockY=false, callback} = props
 
-  console.log('Draggable',{x, y, w, h}) // todo: remove log
+  // console.log('Draggable',{x, y, w, h}) // todo: remove log
 
   const [position, setPosition] = useState({x, y})
   const [move, setMove] = useState({x:0, y:0})
@@ -48,13 +58,14 @@ export function Draggable(props:{x:number,y:number,w?:number,h?:number,children?
   useEffect(()=>{
     const {x:ox, y:oy} = position
     const {x:mx, y:my} = move
-    const x = ox + mx
-    const y = oy + my
+    const x = ox + (lockX?0:mx)
+    const y = oy + (lockY?0:my)
+
     setPosition({x,y})
-    setStyle({...style, ...{
-      left: x + 'px',
-      top: y + 'px'
-    }})
+    callback?.(x,y)
+
+    const newStyle = lockX&&{top:px(y)}||lockY&&{left:px(x)}||{left:px(x),top:px(y)}
+    setStyle({...style, ...newStyle})
   },[move])
 
   useEffect(()=>{
