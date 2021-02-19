@@ -13,6 +13,8 @@ const StyledCalendar = styled.div`
     flex: 0 0 ${1/12*100}%;
     text-align: center;
     line-height: 2rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
     &:not(las-child) {
       box-shadow: -1px 0 0 var(--color-fg) inset;
     }

@@ -1,24 +1,19 @@
 import styled from 'styled-components'
 import {ScheduledPlant} from '../model/ScheduledPlant'
 import {rgba} from '../utils/utils'
-import {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState, useMemo} from 'react'
 
 
 const defaultArea = {x:0,y:0,w:1,h:1}
 
-const StyledPlantArea = styled.div`
+const StyledPlantArea = styled.div<{plantSize:string}>`
   position: absolute;
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
   line-height: 0.1px;
-`
-const StyledPlant = styled.div`
-  border-radius: 50%;
-  min-width: 2px;
-  min-height: 2px;
-  margin: 0 1px 1px 0;
-  box-shadow: 4px 4px 8px rgba(0,0,0,0.3) inset;
+  background: radial-gradient(circle at center, ${props=>props.color} 62%, transparent 66%);
+  background-size: ${(props:any)=>props.plantSize} ${(props:any)=>props.plantSize};
 `
 
 const zoom = 2
@@ -38,6 +33,7 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
   const [lastpos, setLastpos] = useState({x:0, y:0})
   const [pos, setPos] = useState({x:0, y:0})
 
+
   const [dragging, setDragging] = useState(false)
 
   const getPos = useCallback(e=>{
@@ -46,6 +42,7 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
   }, [])
 
   const startDragging = useCallback(e=>{
+    e.preventDefault()
     setLastpos(getPos(e))
     setDragging(true)
   }, [])
@@ -103,23 +100,15 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
     }
   }, [dragging])
 
+  const plantSize = useMemo(()=>relativeSize(size-1), [])
+
   return <StyledPlantArea
       style={style}
       title={name}
       onTouchStart = {startDragging}
       onMouseDown = {startDragging}
+      plantSize = {plantSize}
+      color = {color}
   >
-    {(()=>{
-      const num = Math.floor(w/size)*Math.floor(h/size)
-      const plantSize = relativeSize(size-1)
-      const plantStyle = {
-        width: plantSize,
-        height: plantSize,
-        backgroundColor: color
-      }
-      return Array.from(new Array(num)).map((n,key)=>
-        <StyledPlant style={plantStyle} key={key}></StyledPlant>
-      )
-    })()}
   </StyledPlantArea>
 }
