@@ -31,7 +31,7 @@ export function Draggable(props:{
     setDragging(true)
   }, [])
   const stopDragging = useCallback(setDragging.bind(null, false), [])
-  
+
   const a:'absolute' = 'absolute'
   const [style, setStyle] = useState({
     position: a,
@@ -40,6 +40,8 @@ export function Draggable(props:{
   })
 
   const windowMove = useCallback(e=>setPos(getPos(e)),[])
+
+  useEffect(()=>setPosition({x,y}),[x,y])
 
   useEffect(()=>{
     const {x:ox,y:oy} = lastpos
@@ -50,9 +52,6 @@ export function Draggable(props:{
     setLastpos({x,y})
   },[pos])
 
-  useEffect(()=>{lockX&&setPosition({...position,x})},[x])
-  useEffect(()=>{lockY&&setPosition({...position,y})},[y])
-
   useEffect(()=>{
     const {x:ox, y:oy} = position
     const {x:mx, y:my} = move
@@ -62,7 +61,7 @@ export function Draggable(props:{
     callback?.(x,y)
   },[move])
 
-  useEffect(()=>{ 
+  useEffect(()=>{
     const {x,y} = position
     const newStyle = {left:px(x),top:px(y)}
     setStyle({...style, ...newStyle})

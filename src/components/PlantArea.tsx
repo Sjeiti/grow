@@ -21,12 +21,13 @@ const StyledPlantArea = styled.div<{plantSize:string}>`
 const StyledHandle = styled.div<{color:string,size:number}>`
   width: ${props=>props.size}px;
   height: ${props=>props.size}px;
-  background-color: red;
+  transform: translate(-50%,-50%);
+  box-shadow: 0 0 0.5rem white inset;
+  z-index: 1;
 `
 
 export function PlantArea(attr:{plan:ScheduledPlant}) {
   const {plant: {name, size = 5}, area = defaultArea, color} = attr.plan
-  // const {x, y, w, h} = area
 
   const [x, setX] = useState(area.x)
   const [y, setY] = useState(area.y)
@@ -48,32 +49,100 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
     })
   },[w,h])
 
-  return <Draggable {...{x,y,w,h}}>
-    <StyledPlantArea
-      style={style}
-      title={name}
-      plantSize = {plantSize}
-      color = {color}
-    />
+  return <>
+    <Draggable {...{x,y,callback:(x,y)=>{
+        setX(x)
+        setY(y)
+      }}}>
+      <StyledPlantArea
+        style={style}
+        title={name}
+        plantSize = {plantSize}
+        color = {color}
+      />
+    </Draggable>
+
+    {/*## TL ##*/}
     <Draggable {...{
-      x:0
-      ,y:0
-      ,callback: (x,y)=>{
-        setW(x+handleSize)
-        setH(y+handleSize)
+      x
+      ,y
+      ,callback: (xx,yy)=>{
+        setX(xx)
+        setY(yy)
+        setW(w-xx+x)
+        setH(h-yy+y)
       }
     }}><StyledHandle {...handleProps} /></Draggable>
+
+    {/*## BR ##*/}
     <Draggable {...{
-      x:(w-handleSize)/2
-      ,y:h-handleSize
+      x:x+w
+      ,y:y+h
+      ,callback: (xx,yy)=>{
+        setW(xx-x)
+        setH(yy-y)
+      }
+    }}><StyledHandle {...handleProps} /></Draggable>
+
+    {/*## BL ##*/}
+    <Draggable {...{
+      x
+      ,y:y+h
+      ,callback: (xx,yy)=>{
+        setX(xx)
+        setW(w-xx+x)
+        setH(yy-y)
+      }
+    }}><StyledHandle {...handleProps} /></Draggable>
+
+    {/*## TR ##*/}
+    <Draggable {...{
+      x:x+w
+      ,y
+      ,callback: (xx,yy)=>{
+        setY(yy)
+        setW(xx-x)
+        setH(h-yy+y)
+      }
+    }}><StyledHandle {...handleProps} /></Draggable>
+
+    {/*## B ##*/}
+    <Draggable {...{
+      x:x+(w)/2
+      ,y:y+h
       ,lockX: true
-      ,callback: (x,y)=>setH(y+handleSize)
+      ,callback: (xx,yy)=>setH(yy-y)
     }}><StyledHandle {...handleProps} /></Draggable>
+
+    {/*## R ##*/}
     <Draggable {...{
-      x:w-handleSize
-      ,y:(h-handleSize)/2
+      x:x+w
+      ,y:y+h/2
       ,lockY: true
-      ,callback: (x,y)=>setW(x+handleSize)
+      ,callback: xx=>setW(xx-x)
     }}><StyledHandle {...handleProps} /></Draggable>
-  </Draggable>
+
+    {/*## T ##*/}
+    <Draggable {...{
+      x:x+w/2
+      ,y
+      ,lockX: true
+      ,callback: (xx,yy)=>{
+        setY(yy)
+        setH(h-yy+y)
+      }
+    }}><StyledHandle {...handleProps} /></Draggable>
+
+    {/*## L ##*/}
+    <Draggable {...{
+      x
+      ,y:y+h/2
+      ,lockY: true
+      ,callback: xx=>{
+        setX(xx)
+        setW(w-xx+x)
+      }
+    }}><StyledHandle {...handleProps} /></Draggable>
+
+  </>
 }
