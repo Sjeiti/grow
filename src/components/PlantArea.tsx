@@ -5,6 +5,7 @@ import React, {useState, useMemo, useEffect} from 'react'
 import {Draggable} from './Draggable'
 
 
+const defaultBed = {x:0,y:0,w:100,h:100}
 const defaultArea = {x:0,y:0,w:1,h:1}
 
 const StyledPlantArea = styled.div<{plantSize:string}>`
@@ -17,17 +18,16 @@ const StyledPlantArea = styled.div<{plantSize:string}>`
   background-size: ${(props:any)=>props.plantSize};
 `
 
-// const StyledHandle = styled(Draggable)<{x:number,y:number,w:number,h:number,color:string}>`
-const StyledHandle = styled.div<{color:string,size:number}>`
+const StyledDraggable = styled(Draggable)<{color:string,size:number}>`
   width: ${props=>props.size}px;
   height: ${props=>props.size}px;
   transform: translate(-50%,-50%);
-  box-shadow: 0 0 0.5rem white inset;
-  z-index: 1;
+  box-shadow: 0 0 0.5rem ${props=>props.color} inset;
+  z-index: 999;
 `
 
 export function PlantArea(attr:{plan:ScheduledPlant}) {
-  const {plant: {name, size = 5}, area = defaultArea, color} = attr.plan
+  const {plant: {name, size = 5}, bed = defaultBed, area = defaultArea, color} = attr.plan
 
   const [x, setX] = useState(area.x)
   const [y, setY] = useState(area.y)
@@ -50,7 +50,14 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
   },[w,h])
 
   return <>
-    <Draggable {...{x,y,callback:(x,y)=>{
+    <Draggable {...{
+      x
+      ,y
+      ,xmin: 0
+      ,ymax: bed.h-h
+      ,ymin: 0
+      ,xmax: bed.w-w
+      ,callback:(x,y)=>{
         setX(x)
         setY(y)
       }}}>
@@ -63,86 +70,118 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
     </Draggable>
 
     {/*## TL ##*/}
-    <Draggable {...{
-      x
+    <StyledDraggable {...{
+      ...handleProps
+      ,x
       ,y
+      ,xmin: 0
+      ,xmax: x+w-size
+      ,ymin: 0
+      ,ymax: y+h-size
       ,callback: (xx,yy)=>{
         setX(xx)
         setY(yy)
         setW(w-xx+x)
         setH(h-yy+y)
       }
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
     {/*## BR ##*/}
-    <Draggable {...{
-      x:x+w
+    <StyledDraggable {...{
+      ...handleProps
+      ,x:x+w
       ,y:y+h
+      ,xmin: x+size
+      ,xmax: bed.w
+      ,ymin: y+size
+      ,ymax: bed.h
       ,callback: (xx,yy)=>{
         setW(xx-x)
         setH(yy-y)
       }
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
     {/*## BL ##*/}
-    <Draggable {...{
-      x
+    <StyledDraggable {...{
+      ...handleProps
+      ,x
       ,y:y+h
+      ,xmin: 0
+      ,xmax: x+w-size
+      ,ymin: y+size
+      ,ymax: bed.h
       ,callback: (xx,yy)=>{
         setX(xx)
         setW(w-xx+x)
         setH(yy-y)
       }
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
     {/*## TR ##*/}
-    <Draggable {...{
-      x:x+w
+    <StyledDraggable {...{
+      ...handleProps
+      ,x:x+w
       ,y
+      ,xmin: x+size
+      ,xmax: bed.w
+      ,ymin: 0
+      ,ymax: y+h-size
       ,callback: (xx,yy)=>{
         setY(yy)
         setW(xx-x)
         setH(h-yy+y)
       }
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
     {/*## B ##*/}
-    <Draggable {...{
-      x:x+(w)/2
+    <StyledDraggable {...{
+      ...handleProps
+      ,x:x+(w)/2
       ,y:y+h
+      ,ymin: y+size
+      ,ymax: bed.h
       ,lockX: true
       ,callback: (xx,yy)=>setH(yy-y)
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
     {/*## R ##*/}
-    <Draggable {...{
-      x:x+w
+    <StyledDraggable {...{
+      ...handleProps
+      ,x:x+w
       ,y:y+h/2
+      ,xmin: x+size
+      ,xmax: bed.w
       ,lockY: true
       ,callback: xx=>setW(xx-x)
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
     {/*## T ##*/}
-    <Draggable {...{
-      x:x+w/2
+    <StyledDraggable {...{
+      ...handleProps
+      ,x:x+w/2
       ,y
+      ,ymin: 0
+      ,ymax: y+h-size
       ,lockX: true
       ,callback: (xx,yy)=>{
         setY(yy)
         setH(h-yy+y)
       }
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
     {/*## L ##*/}
-    <Draggable {...{
-      x
+    <StyledDraggable {...{
+      ...handleProps
+      ,x
       ,y:y+h/2
+      ,xmin: 0
+      ,xmax: x+w-size
       ,lockY: true
       ,callback: xx=>{
         setX(xx)
         setW(w-xx+x)
       }
-    }}><StyledHandle {...handleProps} /></Draggable>
+    }} />
 
   </>
 }

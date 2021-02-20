@@ -5,12 +5,11 @@ import {Land } from './components/Land'
 import {ScheduledPlant} from './model/ScheduledPlant'
 import {Area} from './model/Area'
 
-
 const bed:Area = {
-  x: 0,
+  x: 10,
   y: 0,
-  w: 60,
-  h: 80
+  w: 330,
+  h: 520
 }
 const differentBed:Area = {
   x: 300,
@@ -21,14 +20,14 @@ const differentBed:Area = {
 
 const schedule:ScheduledPlant[] = [
   {
-    plant: { name: 'Carrot' },
+    plant: { name: 'Carrot', size: 11 },
     bed,
     area: {x:0,y:0,w:100,h:100},
     dateRange: {from:new Date('0000-01-01'),to:new Date('0000-03-01')},
     color: '#c61'
   },
   {
-    plant: { name: 'Blueberry', size: 13 },
+    plant: { name: 'Blueberry', size: 33 },
     bed,
     area: {x:20,y:20,w:100,h:100},
     dateRange: {from:new Date('0000-05-01'),to:new Date('0000-06-01')},

@@ -1,15 +1,30 @@
 import React, {useCallback, useEffect, useState, CSSProperties} from 'react'
-import {px} from '../utils/utils'
+import {px, clamp} from '../utils/utils'
 
 export function Draggable(props:{
   x:number
+  ,xmin?:number
+  ,xmax?:number
   ,y:number
+  ,ymin?:number
+  ,ymax?:number
   ,lockX?:boolean
   ,lockY?:boolean
   ,callback?:(x:number,y:number)=>void
   ,children?:any
+  ,className?:string
 }) {
-  const {x, y, lockX=false, lockY=false, callback} = props
+  const {
+    x = 0
+    ,xmin = Number.NEGATIVE_INFINITY
+    ,xmax = Number.POSITIVE_INFINITY
+    ,y = 0
+    ,ymin = Number.NEGATIVE_INFINITY
+    ,ymax = Number.POSITIVE_INFINITY
+    ,lockX=false
+    ,lockY=false
+    ,callback
+  } = props
 
   const [position, setPosition] = useState({x, y})
   const [move, setMove] = useState({x:0, y:0})
@@ -41,7 +56,10 @@ export function Draggable(props:{
 
   const windowMove = useCallback(e=>setPos(getPos(e)),[])
 
-  useEffect(()=>setPosition({x,y}),[x,y])
+  useEffect(()=>setPosition({
+     x: clamp(x, xmin, xmax)
+    ,y: clamp(y, ymin, ymax)
+  }),[x,y])
 
   useEffect(()=>{
     const {x:ox,y:oy} = lastpos
@@ -55,8 +73,8 @@ export function Draggable(props:{
   useEffect(()=>{
     const {x:ox, y:oy} = position
     const {x:mx, y:my} = move
-    const x = ox + (lockX?0:mx)
-    const y = oy + (lockY?0:my)
+    const x = clamp(ox + (lockX?0:mx), xmin, xmax)
+    const y = clamp(oy + (lockY?0:my), ymin, ymax)
     setPosition({x,y})
     callback?.(x,y)
   },[move])
@@ -89,6 +107,7 @@ export function Draggable(props:{
   }, [dragging])
 
   return <div
+      className={props.className}
       style={style}
       onTouchStart = {startDragging}
       onMouseDown = {startDragging}

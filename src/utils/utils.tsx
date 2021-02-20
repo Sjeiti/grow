@@ -21,3 +21,7 @@ export function px(n:number):string {
 export function square(s:string):string {
 	return `${s} ${s}`
 }
+
+export function clamp(v:number,min:number,max:number){
+  return Math.min(Math.max(v,min),max)
+}
