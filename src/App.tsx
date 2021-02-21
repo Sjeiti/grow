@@ -9,7 +9,7 @@ const bed:Area = {
   x: 10,
   y: 0,
   w: 330,
-  h: 520
+  h: 480
 }
 const differentBed:Area = {
   x: 300,
@@ -47,7 +47,19 @@ const schedule:ScheduledPlant[] = [
   }
 ]
 
-const StyledApp = styled.div``
+const StyledApp = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-content: stretch;
+  height: 100vh;
+  overflow: hidden;
+
+  ${Land.selector} {
+    flex: 1 1 70%;
+    min-height: 30vh;
+    box-shadow: 0 0 0 11px lime;
+  }
+`
 
 export function App() {
   return <StyledApp>
