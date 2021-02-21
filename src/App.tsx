@@ -1,9 +1,11 @@
 import './styles.css'
 import {Calendar} from './components/Calendar'
 import styled from 'styled-components'
-import {Land } from './components/Land'
+import {Land, StyledLand} from './components/Land'
 import {ScheduledPlant} from './model/ScheduledPlant'
 import {Area} from './model/Area'
+import {Store} from './store'
+import {Storage} from './service/Storage'
 
 const bed:Area = {
   x: 10,
@@ -50,20 +52,18 @@ const schedule:ScheduledPlant[] = [
 const StyledApp = styled.div`
   display: flex;
   flex-direction: column;
-  align-content: stretch;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
 
-  ${Land.selector} {
-    flex: 1 1 70%;
-    min-height: 30vh;
-    box-shadow: 0 0 0 11px lime;
+  ${StyledLand} {
+    flex: 1 1 auto;
+    box-shadow: 0 0 0 2px lime inset;
   }
 `
 
 export function App() {
-  return <StyledApp>
-    <Calendar schedule={schedule}></Calendar>
-    <Land bed={bed} schedule={schedule}></Land>
-  </StyledApp>
+  return <Store><Storage /><StyledApp>
+    <Calendar schedule={schedule} />
+    <Land bed={bed} schedule={schedule} />
+  </StyledApp></Store>
 }

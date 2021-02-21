@@ -4,7 +4,7 @@ import {Area} from '../model/Area'
 import {PlantArea} from './PlantArea'
 import {px} from '../utils/utils'
 
-const StyledLand = styled.div`
+export const StyledLand = styled.div`
   position: relative;
 `
 const StyledBed = styled.div`
