@@ -3,6 +3,8 @@ const locale = 'nl-nl'
 
 export const months = Array.from(new Array(12)).map((s, i) => monthName(i))
 
+export const NAME = 'grow'
+
 function monthName(index: number): string {
   const objDate = new Date()
   objDate.setDate(1)

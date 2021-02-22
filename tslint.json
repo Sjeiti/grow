@@ -11,7 +11,8 @@
         "space-before-function-paren": [true, "never"],
         "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
         "no-shadowed-variable": false,
-        "no-console": false
+        "no-console": false,
+        "no-unused-expression": false
     },
     "rulesDirectory": []
 }

@@ -1,10 +1,9 @@
-import {Plant} from './Plant'
 import {Area} from './Area'
 import {DateRange} from './DateRange'
 
 export interface ScheduledPlant {
-  plant: Plant
-  bed?: Area
+  plantKey: string
+  bedKey?: string
   area?: Area
   dateRange: DateRange
   presprout?: DateRange

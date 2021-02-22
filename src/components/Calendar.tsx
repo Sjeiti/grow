@@ -1,10 +1,11 @@
 import styled from 'styled-components'
 import {months} from '../config'
 import {datePart, partToPercentage} from '../utils/utils'
-import {ScheduledPlant} from '../model/ScheduledPlant'
+import {Model} from '../model/Model'
+import {useContext} from 'react'
+import {Context} from '../store'
 
 const StyledCalendar = styled.div`
-  margin-bottom: 3rem;
   box-shadow: 0 0 0 1px gray;
   header {
    display: flex;
@@ -35,8 +36,11 @@ const StyledCalendar = styled.div`
   }
 `
 
-export function Calendar(attr:{schedule:ScheduledPlant[]}) {
-  const {schedule} = attr
+export function Calendar() {
+
+  const [state, dispatch]:[Model, any] = useContext(Context)
+
+  const {schedule, plants} = state
 
   return <StyledCalendar>
     <header>
@@ -53,7 +57,8 @@ export function Calendar(attr:{schedule:ScheduledPlant[]}) {
           width: partToPercentage(widthPart),
           backgroundColor: plan.color
         }
-        return <div style={style} key={key}>{plan.plant.name}</div>
+        const plant = plants[plan.plantKey]
+        return <div style={style} key={key}>{plant.name}</div>
       })}
     </div>
   </StyledCalendar>

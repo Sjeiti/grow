@@ -1,8 +1,10 @@
 import styled from 'styled-components'
-import {ScheduledPlant} from '../model/ScheduledPlant'
 import {Area} from '../model/Area'
 import {PlantArea} from './PlantArea'
 import {px} from '../utils/utils'
+import {useContext} from 'react'
+import {Context} from '../store'
+import {Model} from '../model/Model'
 
 export const StyledLand = styled.div`
   position: relative;
@@ -14,10 +16,15 @@ const StyledBed = styled.div`
   box-shadow: 0 0 0 1px gray;
 `
 
-export function Land(attr:{bed:Area,schedule:ScheduledPlant[]}) {
+export function Land() {
 
-  const {bed, schedule} = attr
-  const contents = schedule.filter(plan=>plan.bed===bed)
+  const [state, dispatch]:[Model, any] = useContext(Context)
+
+  const {beds, schedule} = state
+  const bedKey = Object.keys(beds)[0]
+  const bed:Area = beds[bedKey]
+
+  const contents = schedule.filter(plan=>plan.bedKey===bedKey)
 
   const bedStyle = {
     left: px(bed.x),
@@ -28,7 +35,7 @@ export function Land(attr:{bed:Area,schedule:ScheduledPlant[]}) {
 
   return <StyledLand>
     <StyledBed style={bedStyle}>
-      {contents.map((plan, key) => <PlantArea plan={plan} key={key} />)}
+      {contents.map((plan, key) => <PlantArea plan={plan} index={key} key={key} />)}
     </StyledBed>
   </StyledLand>
 }

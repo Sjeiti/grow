@@ -1,9 +1,10 @@
 import styled from 'styled-components'
 import {ScheduledPlant} from '../model/ScheduledPlant'
 import {px, rgba, square} from '../utils/utils'
-import React, {useState, useMemo, useEffect} from 'react'
+import React, {useState, useMemo, useEffect, useContext} from 'react'
 import {Draggable} from './Draggable'
-
+import {Model} from '../model/Model'
+import {Context} from '../store'
 
 const defaultBed = {x:0,y:0,w:100,h:100}
 const defaultArea = {x:0,y:0,w:1,h:1}
@@ -26,8 +27,14 @@ const StyledDraggable = styled(Draggable)<{color:string,size:number}>`
   z-index: 999;
 `
 
-export function PlantArea(attr:{plan:ScheduledPlant}) {
-  const {plant: {name, size = 5}, bed = defaultBed, area = defaultArea, color} = attr.plan
+export function PlantArea(attr:{plan:ScheduledPlant,index:number}) {
+
+  const [state, dispatch]:[Model, any] = useContext(Context)
+  const {plants, beds} = state
+
+  const {index, plan: {plantKey, bedKey, area = defaultArea, color}} = attr
+  const {name, size = 5} = plants[plantKey]
+  const bed = bedKey&&beds[bedKey]||defaultBed
 
   const [x, setX] = useState(area.x)
   const [y, setY] = useState(area.y)
@@ -48,6 +55,10 @@ export function PlantArea(attr:{plan:ScheduledPlant}) {
       boxShadow: `0 0 0 11px ${rgba(color, 0.6)} inset`
     })
   },[w,h])
+
+  useEffect(()=>{
+    dispatch({type: 'UPDATE_AREA', payload: {index, area: {x,y,w,h}}})
+  },[x,y,w,h])
 
   return <>
     <Draggable {...{

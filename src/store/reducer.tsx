@@ -5,28 +5,53 @@
 //     ,SET_ERROR: Symbol('SET_ERROR')
 // }
 
-export const Reducer = (state:any, action:{payload:any,type:string}) => {
+import {NAME} from '../config'
+import {modelToString} from '../utils/utils'
+import {Model} from '../model/Model'
+
+export const Reducer = (state: Model, action: { payload: any, type: string }) => {
   switch (action.type) {
-      case 'SET_POSTS': // action.SET_POSTS:
+
+    case 'SAVE':
+      localStorage.setItem(NAME, modelToString(state))
+      return state
+
+    case 'UPDATE_AREA':
+      const {index, area} = action.payload
+      // Object.assign(action.payload.plan.area, action.payload.area)
+      const {plants,beds,schedule} = state
       return {
-        ...state,
-        posts: action.payload
+        plants
+        ,beds
+        ,schedule: schedule.map((plan,i)=>{
+          if (i===index) {
+            return {...plan, area}
+          } else {
+            return plan
+          }
+        })
       }
-      case 'ADD_POST': // action.ADD_POST:
-      return {
-        ...state,
-        posts: state.posts.concat(action.payload)
-      }
-      case 'REMOVE_POST': // action.REMOVE_POST:
-      return {
-        ...state,
-        posts: state.posts.filter((post:any) => post.id !== action.payload)
-      }
-      case 'SET_ERROR': // action.SET_ERROR:
-      return {
-        ...state,
-        error: action.payload
-      }
+
+    // case 'SET_POSTS': // action.SET_POSTS:
+    //   return {
+    //     ...state,
+    //     posts: action.payload
+    //   }
+    // case 'ADD_POST': // action.ADD_POST:
+    //   return {
+    //     ...state,
+    //     posts: state.posts.concat(action.payload)
+    //   }
+    // case 'REMOVE_POST': // action.REMOVE_POST:
+    //   return {
+    //     ...state,
+    //     posts: state.posts.filter((post: any) => post.id !== action.payload)
+    //   }
+    // case 'SET_ERROR': // action.SET_ERROR:
+    //   return {
+    //     ...state,
+    //     error: action.payload
+    //   }
     default:
       return state
   }
