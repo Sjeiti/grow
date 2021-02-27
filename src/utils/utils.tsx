@@ -24,6 +24,9 @@ export function rgba(color:string, alpha:number):string {
 export function px(n:number):string {
 	return `${n}px`
 }
+export function rem(n:number):string {
+	return `${n}rem`
+}
 
 export function square(s:string):string {
 	return `${s} ${s}`

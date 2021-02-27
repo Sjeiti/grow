@@ -5,6 +5,7 @@ import React, {useState, useMemo, useEffect, useContext} from 'react'
 import {Draggable} from './Draggable'
 import {Model} from '../model/Model'
 import {Context} from '../store'
+import {action} from '../store/reducer'
 
 const defaultBed = {x:0,y:0,w:100,h:100}
 const defaultArea = {x:0,y:0,w:1,h:1}
@@ -32,7 +33,7 @@ export function PlantArea(attr:{plan:ScheduledPlant,index:number}) {
   const [state, dispatch]:[Model, any] = useContext(Context)
   const {plants, beds} = state
 
-  const {index, plan: {plantKey, bedKey, area = defaultArea, color}} = attr
+  const {index, plan, plan: {plantKey, bedKey, area = defaultArea, color}} = attr
   const {name, size = 5} = plants[plantKey]
   const bed = bedKey&&beds[bedKey]||defaultBed
 
@@ -57,7 +58,7 @@ export function PlantArea(attr:{plan:ScheduledPlant,index:number}) {
   },[w,h])
 
   useEffect(()=>{
-    dispatch({type: 'UPDATE_AREA', payload: {index, area: {x,y,w,h}}})
+    dispatch({type: action.UPDATE_AREA, payload: {area: {x,y,w,h}, plan}})
   },[x,y,w,h])
 
   return <>

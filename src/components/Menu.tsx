@@ -1,13 +1,13 @@
-import {useContext, useEffect, useCallback} from 'react'
+import {useContext, useCallback} from 'react'
 import {Context} from '../store'
+import {action} from '../store/reducer'
 
 export function Menu(){
 
-  const [state, dispatch] = useContext(Context)
+  const [,dispatch] = useContext(Context)
 
   const onClick = useCallback(()=>{
-    dispatch({type: 'SAVE'})
-    // dispatch({type: 'ADD_POST', payload: {foo:23}})
+    dispatch({type: action.SAVE})
   }, [])
 
   return <menu><button {...{onClick}}>save</button></menu>
