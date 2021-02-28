@@ -1,10 +1,11 @@
 export const action = {
     SAVE: Symbol('SAVE')
     ,UPDATE_AREA: Symbol('UPDATE_AREA')
+    ,UPDATE_PLAN: Symbol('UPDATE_PLAN')
     // ,REMOVE_POST: Symbol('REMOVE_POST')
     // ,SET_ERROR: SUPDATE_AREAymbol('SET_ERROR')
 }
-const {SAVE, UPDATE_AREA} = action
+const {SAVE, UPDATE_AREA, UPDATE_PLAN} = action
 
 import {NAME} from '../config'
 import {modelToString} from '../utils/utils'
@@ -13,15 +14,13 @@ import {ScheduledPlant} from '../model/ScheduledPlant'
 
 export const Reducer = (state: Model, action: { payload: any, type: symbol, plan: ScheduledPlant }) => {
 
-  console.log('action.type',action.type) // todo: remove log
-
   switch (action.type) {
 
-    case SAVE:
+    case SAVE:{
       localStorage.setItem(NAME, modelToString(state))
       return state
-
-    case UPDATE_AREA:
+    }
+    case UPDATE_AREA: {
       const {area, plan} = action.payload
       const {plants,beds,schedule} = state
       return {
@@ -29,7 +28,16 @@ export const Reducer = (state: Model, action: { payload: any, type: symbol, plan
         ,beds
         ,schedule: schedule.map(schedulePlan=>schedulePlan===plan?{...schedulePlan, area}:schedulePlan)
       }
-
+    }
+    case UPDATE_PLAN: {
+      const {dateRange, plan} = action.payload
+      const {plants,beds,schedule} = state
+      return {
+        plants
+        ,beds
+        ,schedule: schedule.map(schedulePlan=>schedulePlan===plan?{...schedulePlan, dateRange}:schedulePlan)
+      }
+    }
     // case 'SET_POSTS': // action.SET_POSTS:
     //   return {
     //     ...state,

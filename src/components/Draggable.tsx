@@ -109,7 +109,7 @@ export function Draggable(props:{
   return <div
       className={props.className}
       style={style}
-      onTouchStart = {startDragging}
-      onMouseDown = {startDragging}
+      onTouchStart={startDragging}
+      onMouseDown={startDragging}
   >{props.children}</div>
 }

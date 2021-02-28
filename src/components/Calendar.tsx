@@ -1,10 +1,13 @@
 import styled from 'styled-components'
 import {months} from '../config'
-import {datePart, partToPercentage, rem} from '../utils/utils'
+import {datePart, partToPercentage, px, rem} from '../utils/utils'
 import {Model} from '../model/Model'
-import {useContext, useMemo} from 'react'
+import React, {Fragment, useCallback, useContext, useMemo} from 'react'
 import {Context} from '../store'
 import {ScheduledPlant} from '../model/ScheduledPlant'
+import {Draggable} from './Draggable'
+import {action} from '../store/reducer'
+import {DateRange} from '../model/DateRange'
 
 const StyledCalendar = styled.div`
   margin-bottom: 3rem;
@@ -38,25 +41,31 @@ const StyledCalendar = styled.div`
   }
 `
 
+const StyledDraggable = styled(Draggable)<{color:string,size:number}>`
+  width: ${props=>props.size}px;
+  height: ${props=>props.size}px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 0.5rem ${props=>props.color} inset;
+  z-index: 999;
+`
+
 export function Calendar() {
 
   const [state, dispatch]:[Model, any] = useContext(Context)
 
   const {schedule, plants} = state
 
-  const rows = useMemo(()=>calculateRows(schedule), [])
+  const w = useMemo(()=>document.body.clientWidth, [])
+  const rows = useMemo(()=>calculateRows(schedule), [schedule])
+  // const rows = useMemo(()=>schedule.map(s=>[s]), [schedule])
 
-  let row = 0
-  let lastTo = new Date('01-01-0000T00:00:00')
-  const sortedSchedule = schedule
-      .sort(({dateRange: {from: a}}, {dateRange: {from: b}}) => a === b ? 0 : a > b ? 1 : -1)
-      .map(plan => {
-        const {dateRange: {from, to}} = plan
-        // console.log('from',from) // todo: remove log
-        if (from<lastTo) row++
-        lastTo = to
-        return {...plan, row}
-      })
+  const setRange = useCallback((x:number,w:number,plan:ScheduledPlant,isFrom:boolean)=>{
+    const date = dateFromX(x, w)
+    if (!isNaN(date.getTime())) {
+      const dateRange: DateRange = {...plan.dateRange, ...(isFrom? {from: date} : {to: date})}
+      dispatch({type: action.UPDATE_PLAN, payload: {plan, dateRange}})
+    }
+  }, [])
 
   return <StyledCalendar>
     <header>
@@ -65,6 +74,7 @@ export function Calendar() {
     <div>
       {rows.map((row,j)=>{
         return row.map((plan,index)=>{
+          const key = j+'-'+index
           const {dateRange:{from, to}} = plan
           const fromPart = datePart(from)
           const toPart = datePart(to)
@@ -76,11 +86,50 @@ export function Calendar() {
             backgroundColor: plan.color
           }
           const plant = plants[plan.plantKey]
-          return <div style={style} key={index}>{plant.name}</div>
+
+          const max = 10
+          const x1 = fromPart*w
+          const x2 = fromPart*w + (toPart-fromPart)*w
+
+          return <Fragment {...{key}}>
+
+            <StyledDraggable {...{
+              x:x1
+              ,y:j*32
+              ,xmin: 0
+              ,xmax: x2-max
+              ,lockY: true
+              ,color: plan.color
+              ,size: 16
+              ,callback: xx=>setRange(xx,w,plan,true)
+            }} />
+
+            <StyledDraggable {...{
+              x:x2
+              ,y:j*32
+              ,xmin: x1+max
+              ,xmax: w
+              ,lockY: true
+              ,color: plan.color
+              ,size: 16
+              ,callback: xx=>setRange(xx,w,plan,false)
+            }} />
+
+            <div {...{style, key}}>{plant.name}</div>
+          </Fragment>
         })
       })}
     </div>
   </StyledCalendar>
+}
+
+function dateFromX(x:number,w:number):Date{
+  const m = x/w*12
+  const mnum = Math.floor(m)
+  const dnum = Math.ceil(30*(m-mnum))
+  const day = dnum.toString().padStart(2,'0')
+  const month = (mnum+1).toString().padStart(2,'0')
+  return new Date(`0000-${month}-${day}`)
 }
 
 function calculateRows(schedule:ScheduledPlant[]):ScheduledPlant[][]{
