@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import {months} from '../config'
-import {datePart, partToPercentage, px, rem} from '../utils/utils'
+import {bitwisenate, datePart, partToPercentage, px, rem} from '../utils/utils'
 import {Model} from '../model/Model'
 import React, {Fragment, useCallback, useContext, useMemo} from 'react'
 import {Context} from '../store'
@@ -26,28 +26,39 @@ const StyledCalendar = styled.div`
     }
    }
   }
-  div {
+  >div {
     position: relative;
     min-height: 2rem;
-    div {
-      position: absolute;
-      color: black;
-      height: 2rem;
-      padding-left: 0.5rem;
-      background-color: orange;
-      font-family: var(--font-condensed);
-      line-height: 2rem;
-    }
   }
 `
 
-const StyledDraggable = styled(Draggable)<{color:string,size:number}>`
-  width: ${props=>props.size}px;
-  height: ${props=>props.size}px;
-  transform: translateX(-50%);
-  box-shadow: 0 0 0.5rem ${props=>props.color} inset;
-  z-index: 999;
+const PlannedBar = styled.div`
+  position: absolute;
+  color: black;
+  height: 2rem;
+  padding-left: 0.5rem;
+  background-color: orange;
+  font-family: var(--font-condensed);
+  line-height: 2rem;
 `
+
+const StyledDraggable = styled(Draggable)<{color:string}>`
+  width: 1rem;
+  height: 2rem;
+  transform: translateX(-50%);
+  bbox-shadow: 0 0 1px ${props=>props.color} inset;
+  background-color: transparent;
+  z-index: 999;
+  cursor: col-resize;
+`
+
+const StyledMoveable = styled(StyledDraggable)<{width:string}>`
+  width: ${props=>props.width};
+  transform: none;
+  cursor: move;
+`
+
+const {LEFT, RIGHT} = bitwisenate('LEFT','RIGHT')
 
 export function Calendar() {
 
@@ -55,14 +66,21 @@ export function Calendar() {
 
   const {schedule, plants} = state
 
-  const w = useMemo(()=>document.body.clientWidth, [])
+  const screenWidth = useMemo(()=>document.body.clientWidth, [])
   const rows = useMemo(()=>calculateRows(schedule), [schedule])
   // const rows = useMemo(()=>schedule.map(s=>[s]), [schedule])
 
-  const setRange = useCallback((x:number,w:number,plan:ScheduledPlant,isFrom:boolean)=>{
+  const setRange = useCallback((x:number,w:number,plan:ScheduledPlant,direction:number)=>{
     const date = dateFromX(x, w)
     if (!isNaN(date.getTime())) {
-      const dateRange: DateRange = {...plan.dateRange, ...(isFrom? {from: date} : {to: date})}
+      const isLeft = !!(LEFT&direction)
+      const isRight = !!(RIGHT&direction)
+      const {dateRange:oldRange, dateRange: {to, from}} = plan
+      const changes:{from?:Date,to?:Date} = {}
+      isLeft&&(changes.from=date)
+      !isLeft&&isRight&&(changes.to=date)
+      isLeft&&isRight&&(changes.to=new Date(date.getTime() + to.getTime() - from.getTime()))
+      const dateRange: DateRange = {...oldRange, ...changes}
       dispatch({type: action.UPDATE_PLAN, payload: {plan, dateRange}})
     }
   }, [])
@@ -88,10 +106,24 @@ export function Calendar() {
           const plant = plants[plan.plantKey]
 
           const max = 10
-          const x1 = fromPart*w
-          const x2 = fromPart*w + (toPart-fromPart)*w
+          const x1 = fromPart*screenWidth
+          const x2 = fromPart*screenWidth + (toPart-fromPart)*screenWidth
 
           return <Fragment {...{key}}>
+
+            <PlannedBar {...{style, key}}>{plant.name}</PlannedBar>
+
+            <StyledMoveable {...{
+              x:x1
+              ,y:j*32
+              ,width: px(widthPart*screenWidth)
+              ,xmin: 0
+              ,xmax: screenWidth - widthPart*screenWidth
+              ,lockY: true
+              ,color: plan.color
+              ,callback: xx=>setRange(xx,screenWidth,plan,LEFT|RIGHT)
+            }}>
+            </StyledMoveable>
 
             <StyledDraggable {...{
               x:x1
@@ -100,22 +132,19 @@ export function Calendar() {
               ,xmax: x2-max
               ,lockY: true
               ,color: plan.color
-              ,size: 16
-              ,callback: xx=>setRange(xx,w,plan,true)
+              ,callback: xx=>setRange(xx,screenWidth,plan,LEFT)
             }} />
 
             <StyledDraggable {...{
               x:x2
               ,y:j*32
               ,xmin: x1+max
-              ,xmax: w
+              ,xmax: screenWidth
               ,lockY: true
               ,color: plan.color
-              ,size: 16
-              ,callback: xx=>setRange(xx,w,plan,false)
+              ,callback: xx=>setRange(xx,screenWidth,plan,RIGHT)
             }} />
 
-            <div {...{style, key}}>{plant.name}</div>
           </Fragment>
         })
       })}

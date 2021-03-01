@@ -12,7 +12,8 @@
         "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
         "no-shadowed-variable": false,
         "no-console": false,
-        "no-unused-expression": false
+        "no-unused-expression": false,
+        "no-bitwise": false
     },
     "rulesDirectory": []
 }

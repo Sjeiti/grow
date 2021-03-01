@@ -103,3 +103,7 @@ export function modelToString(model:Model):string {
     })
   })
 }
+
+export function bitwisenate(...args: string[]):{[key:string]:number} {
+  return args.reduce((acc:{[key:string]:number},key:string,index:number)=>(acc[key] = 2**index, acc), {})
+}
